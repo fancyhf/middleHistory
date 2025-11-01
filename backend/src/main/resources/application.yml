@@ -1,0 +1,175 @@
+# Spring Boot后端主服务配置文件
+# @author AI Agent
+# @version 1.0.0
+# @created 2024-12-29 18:00:00
+
+server:
+  port: 8080
+  servlet:
+    # context-path: /api  # 注释掉context-path，使根路径可访问
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  application:
+    name: history-analysis-backend
+  
+  # 数据源配置 - 使用H2内存数据库（开发环境）
+  datasource:
+    url: jdbc:h2:mem:history_analysis;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  # H2控制台配置
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        use_sql_comments: true
+  
+  # Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
+          max-wait: 2000ms
+  
+  # 文件上传配置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
+      file-size-threshold: 2KB
+  
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+
+# 日志配置
+logging:
+  level:
+    com.historyanalysis: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/history-analysis.log
+    max-size: 100MB
+    max-history: 30
+
+# JWT配置
+jwt:
+  secret: historyAnalysisSecretKey2024ForJWTTokenGeneration
+  expiration: 86400000 # 24小时
+  refresh-expiration: 604800000 # 7天
+
+# 文件存储配置
+file:
+  upload:
+    path: ./uploads/
+    allowed-types: txt,doc,docx,pdf
+    max-size: 10485760 # 10MB
+  
+# NLP服务配置
+nlp:
+  service:
+    url: http://localhost:5000
+    timeout: 30000
+    retry:
+      max-attempts: 3
+      delay: 1000
+
+# 分析任务配置
+analysis:
+  task:
+    pool-size: 10
+    queue-capacity: 100
+    timeout: 300000 # 5分钟
+    cleanup:
+      enabled: true
+      interval: 3600000 # 1小时
+      retention-days: 30
+
+# 缓存配置
+cache:
+  redis:
+    default-ttl: 3600 # 1小时
+    analysis-result-ttl: 86400 # 24小时
+    user-session-ttl: 1800 # 30分钟
+
+# 跨域配置
+cors:
+  allowed-origins: 
+    - http://localhost:3000
+    - http://localhost:5173
+  allowed-methods: 
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowed-headers: 
+    - "*"
+  allow-credentials: true
+  max-age: 3600
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  health:
+    redis:
+      enabled: false
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# 应用信息
+info:
+  app:
+    name: 历史数据统计分析工具后端服务
+    version: 1.0.0
+    description: 提供用户认证、文件管理、项目管理和分析任务调度功能

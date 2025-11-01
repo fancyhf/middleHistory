@@ -1,0 +1,71 @@
+{
+  "testSuite": "NLP前端UI自动化测试",
+  "timestamp": "2025-10-30T02:27:44.485Z",
+  "summary": {
+    "totalTests": 8,
+    "passed": 8,
+    "failed": 0,
+    "successRate": "100.0%",
+    "totalDuration": "16082ms"
+  },
+  "testResults": [
+    {
+      "name": "应用加载测试",
+      "status": "PASS",
+      "duration": 4746,
+      "timestamp": "2025-10-30T02:27:31.918Z",
+      "error": null
+    },
+    {
+      "name": "导航到NLP测试页面",
+      "status": "PASS",
+      "duration": 3363,
+      "timestamp": "2025-10-30T02:27:35.468Z",
+      "error": null
+    },
+    {
+      "name": "词频分析功能测试",
+      "status": "PASS",
+      "duration": 3365,
+      "timestamp": "2025-10-30T02:27:38.987Z",
+      "error": null
+    },
+    {
+      "name": "时间线分析功能测试",
+      "status": "PASS",
+      "duration": 10,
+      "timestamp": "2025-10-30T02:27:39.174Z",
+      "error": null
+    },
+    {
+      "name": "地理分析功能测试",
+      "status": "PASS",
+      "duration": 5,
+      "timestamp": "2025-10-30T02:27:39.372Z",
+      "error": null
+    },
+    {
+      "name": "文本摘要功能测试",
+      "status": "PASS",
+      "duration": 8,
+      "timestamp": "2025-10-30T02:27:39.506Z",
+      "error": null
+    },
+    {
+      "name": "数据可视化检查",
+      "status": "PASS",
+      "duration": 48,
+      "timestamp": "2025-10-30T02:27:39.673Z",
+      "error": null
+    },
+    {
+      "name": "响应式设计测试",
+      "status": "PASS",
+      "duration": 4537,
+      "timestamp": "2025-10-30T02:27:44.348Z",
+      "error": null
+    }
+  ],
+  "screenshotDirectory": "H:\\projects\\midHis\\nlp-ui-test-screenshots",
+  "reportDirectory": "H:\\projects\\midHis\\nlp-ui-test-reports"
+}

@@ -1,0 +1,158 @@
+/**
+ * 应用程序样式文件
+ * @author AI Agent
+ * @version 1.0.0
+ * @created 2024-01-15
+ */
+
+.app-layout {
+  min-height: 100vh;
+}
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 64px;
+}
+
+.app-content-layout {
+  margin-top: 64px;
+  min-height: calc(100vh - 64px);
+}
+
+.app-sider {
+  position: fixed;
+  left: 0;
+  top: 64px;
+  bottom: 0;
+  z-index: 999;
+  overflow: auto;
+}
+
+.app-main-content {
+  margin-left: 200px;
+  min-height: calc(100vh - 64px);
+  transition: margin-left 0.2s;
+}
+
+.app-main-content.collapsed {
+  margin-left: 80px;
+}
+
+.ant-layout-header {
+  background: #001529;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ant-layout-sider {
+  background: #fff;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.ant-menu {
+  border-right: none;
+}
+
+.logo {
+  height: 32px;
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+}
+
+.page-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.page-header .description {
+  margin-top: 8px;
+  color: #8c8c8c;
+  font-size: 14px;
+}
+
+.chart-container {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #262626;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.error-container {
+  text-align: center;
+  padding: 48px 24px;
+  color: #ff4d4f;
+}
+
+.upload-area {
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  padding: 48px 24px;
+  text-align: center;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.upload-area:hover {
+  border-color: #1890ff;
+  background: #f0f8ff;
+}
+
+.upload-area.dragover {
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.stats-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.stats-card .number {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.stats-card .label {
+  font-size: 14px;
+  opacity: 0.9;
+}

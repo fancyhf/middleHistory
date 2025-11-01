@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLP UI 简单测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #f6ffed;
+            border-left: 4px solid #52c41a;
+            color: #389e0d;
+        }
+        .failed {
+            background: #fff2f0;
+            border-left: 4px solid #ff4d4f;
+            color: #cf1322;
+        }
+        button {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #40a9ff;
+        }
+        .log {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #52c41a;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 NLP UI 功能测试</h1>
+        <p>这是一个简化的UI测试工具，用于验证NLP功能在前端的集成表现。</p>
+        
+        <div class="test-section">
+            <h2>测试控制</h2>
+            <button onclick="startAllTests()">开始全部测试</button>
+            <button onclick="clearResults()">清空结果</button>
+            <button onclick="exportResults()">导出结果</button>
+            
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div id="progressText">准备开始测试...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试结果</h2>
+            <div id="testResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试日志</h2>
+            <div class="log" id="testLog"></div>
+        </div>
+    </div>
+
+    <script>
+        class SimpleUITester {
+            constructor() {
+                this.testResults = [];
+                this.currentTest = 0;
+                this.totalTests = 0;
+                this.testData = {
+                    sampleText: '明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区。这些航海活动不仅展示了中国古代的航海技术和造船工艺，也促进了中外文化交流和贸易往来。'
+                };
+            }
+            
+            log(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                const logElement = document.getElementById('testLog');
+                logElement.textContent += `[${timestamp}] ${message}\n`;
+                logElement.scrollTop = logElement.scrollHeight;
+                console.log(message);
+            }
+            
+            addTestResult(testName, success, details = '') {
+                const result = {
+                    testName,
+                    success,
+                    details,
+                    timestamp: new Date().toISOString()
+                };
+                this.testResults.push(result);
+                
+                const status = success ? '✅' : '❌';
+                this.log(`${status} ${testName}: ${details}`);
+                
+                this.updateResultsDisplay();
+                this.updateProgress();
+            }
+            
+            updateResultsDisplay() {
+                const resultsElement = document.getElementById('testResults');
+                resultsElement.innerHTML = '';
+                
+                this.testResults.forEach(result => {
+                    const div = document.createElement('div');
+                    div.className = `test-result ${result.success ? 'success' : 'failed'}`;
+                    div.innerHTML = `
+                        <strong>${result.success ? '✅' : '❌'} ${result.testName}</strong><br>
+                        详情: ${result.details}<br>
+                        时间: ${new Date(result.timestamp).toLocaleString('zh-CN')}
+                    `;
+                    resultsElement.appendChild(div);
+                });
+            }
+            
+            updateProgress() {
+                const progress = (this.currentTest / this.totalTests) * 100;
+                document.getElementById('progressBar').style.width = `${progress}%`;
+                document.getElementById('progressText').textContent = 
+                    `测试进度: ${this.currentTest}/${this.totalTests} (${progress.toFixed(1)}%)`;
+            }
+            
+            async delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            
+            async testNlpServiceHealth() {
+                this.log('测试NLP服务健康状态...');
+                
+                try {
+                    const response = await fetch('http://localhost:5001/api/health');
+                    const isHealthy = response.ok;
+                    const data = isHealthy ? await response.json() : null;
+                    
+                    this.addTestResult('NLP服务健康检查', isHealthy, 
+                        isHealthy ? `服务正常: ${data?.status || 'OK'}` : `服务异常: ${response.status}`);
+                    
+                    this.currentTest++;
+                    return isHealthy;
+                } catch (error) {
+                    this.addTestResult('NLP服务健康检查', false, `连接失败: ${error.message}`);
+                    this.currentTest++;
+                    return false;
+                }
+            }
+            
+            async testWordFrequencyAPI() {
+                this.log('测试词频分析API...');
+                
+                try {
+                    const response = await fetch('http://localhost:5001/api/word_frequency', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            text: this.testData.sampleText
+                        })
+                    });
+                    
+                    const isSuccess = response.ok;
+                    const data = isSuccess ? await response.json() : null;
+                    
+                    this.addTestResult('词频分析API', isSuccess, 
+                        isSuccess ? `成功分析，返回 ${data?.word_frequency?.length || 0} 个词频结果` : 
+                        `API调用失败: ${response.status}`);
+                    
+                    this.currentTest++;
+                    return isSuccess;
+                } catch (error) {
+                    this.addTestResult('词频分析API', false, `请求失败: ${error.message}`);
+                    this.currentTest++;
+                    return false;
+                }
+            }
+            
+            async testTimelineAPI() {
+                this.log('测试时间轴分析API...');
+                
+                try {
+                    const response = await fetch('http://localhost:5001/api/timeline', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            text: this.testData.sampleText
+                        })
+                    });
+                    
+                    const isSuccess = response.ok;
+                    const data = isSuccess ? await response.json() : null;
+                    
+                    this.addTestResult('时间轴分析API', isSuccess, 
+                        isSuccess ? `成功分析，返回 ${data?.timeline?.length || 0} 个时间点` : 
+                        `API调用失败: ${response.status}`);
+                    
+                    this.currentTest++;
+                    return isSuccess;
+                } catch (error) {
+                    this.addTestResult('时间轴分析API', false, `请求失败: ${error.message}`);
+                    this.currentTest++;
+                    return false;
+                }
+            }
+            
+            async testGeographicAPI() {
+                this.log('测试地理分析API...');
+                
+                try {
+                    const response = await fetch('http://localhost:5001/api/geographic', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            text: this.testData.sampleText
+                        })
+                    });
+                    
+                    const isSuccess = response.ok;
+                    const data = isSuccess ? await response.json() : null;
+                    
+                    this.addTestResult('地理分析API', isSuccess, 
+                        isSuccess ? `成功分析，返回 ${data?.locations?.length || 0} 个地理位置` : 
+                        `API调用失败: ${response.status}`);
+                    
+                    this.currentTest++;
+                    return isSuccess;
+                } catch (error) {
+                    this.addTestResult('地理分析API', false, `请求失败: ${error.message}`);
+                    this.currentTest++;
+                    return false;
+                }
+            }
+            
+            async testTextSummaryAPI() {
+                this.log('测试文本摘要API...');
+                
+                try {
+                    const response = await fetch('http://localhost:5001/api/summary', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            text: this.testData.sampleText
+                        })
+                    });
+                    
+                    const isSuccess = response.ok;
+                    const data = isSuccess ? await response.json() : null;
+                    
+                    this.addTestResult('文本摘要API', isSuccess, 
+                        isSuccess ? `成功生成摘要，长度: ${data?.summary?.length || 0} 字符` : 
+                        `API调用失败: ${response.status}`);
+                    
+                    this.currentTest++;
+                    return isSuccess;
+                } catch (error) {
+                    this.addTestResult('文本摘要API', false, `请求失败: ${error.message}`);
+                    this.currentTest++;
+                    return false;
+                }
+            }
+            
+            async runAllTests() {
+                this.log('🎯 开始NLP UI集成测试...');
+                this.testResults = [];
+                this.currentTest = 0;
+                this.totalTests = 5;
+                
+                this.updateProgress();
+                
+                await this.testNlpServiceHealth();
+                await this.delay(500);
+                
+                await this.testWordFrequencyAPI();
+                await this.delay(500);
+                
+                await this.testTimelineAPI();
+                await this.delay(500);
+                
+                await this.testGeographicAPI();
+                await this.delay(500);
+                
+                await this.testTextSummaryAPI();
+                
+                this.generateSummary();
+                this.log('🎉 测试完成!');
+            }
+            
+            generateSummary() {
+                const successCount = this.testResults.filter(r => r.success).length;
+                const totalCount = this.testResults.length;
+                const successRate = ((successCount / totalCount) * 100).toFixed(1);
+                
+                this.log(`📊 测试总结:`);
+                this.log(`   总测试数: ${totalCount}`);
+                this.log(`   成功测试: ${successCount}`);
+                this.log(`   失败测试: ${totalCount - successCount}`);
+                this.log(`   成功率: ${successRate}%`);
+                
+                document.getElementById('progressText').textContent = 
+                    `测试完成: ${successCount}/${totalCount} 通过 (${successRate}%)`;
+            }
+            
+            exportResults() {
+                const report = {
+                    summary: {
+                        totalTests: this.testResults.length,
+                        successfulTests: this.testResults.filter(r => r.success).length,
+                        failedTests: this.testResults.filter(r => !r.success).length,
+                        testDate: new Date().toISOString()
+                    },
+                    testResults: this.testResults
+                };
+                
+                const dataStr = JSON.stringify(report, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `nlp-ui-test-report-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                URL.revokeObjectURL(url);
+                this.log('📄 测试报告已导出');
+            }
+            
+            clearResults() {
+                this.testResults = [];
+                this.currentTest = 0;
+                document.getElementById('testResults').innerHTML = '';
+                document.getElementById('testLog').textContent = '';
+                document.getElementById('progressBar').style.width = '0%';
+                document.getElementById('progressText').textContent = '准备开始测试...';
+                this.log('🧹 测试结果已清空');
+            }
+        }
+        
+        const tester = new SimpleUITester();
+        
+        function startAllTests() {
+            tester.runAllTests();
+        }
+        
+        function clearResults() {
+            tester.clearResults();
+        }
+        
+        function exportResults() {
+            tester.exportResults();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            tester.log('✅ UI测试工具已准备就绪');
+            tester.log('💡 点击"开始全部测试"按钮开始测试');
+        });
+    </script>
+</body>
+</html>

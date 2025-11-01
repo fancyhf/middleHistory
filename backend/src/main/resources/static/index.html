@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史数据统计分析工具</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 600px;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        .api-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .api-info h3 {
+            color: #495057;
+            margin-top: 0;
+        }
+        .endpoint {
+            margin: 10px 0;
+            padding: 8px 12px;
+            background: #e9ecef;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .endpoint a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .endpoint a:hover {
+            text-decoration: underline;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .status.running {
+            background: #d4edda;
+            color: #155724;
+        }
+        .footer {
+            margin-top: 30px;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏛️ 历史数据统计分析工具</h1>
+        <p class="subtitle">基于Spring Boot的历史数据统计分析工具</p>
+        
+        <div class="status running">✅ 服务运行中</div>
+        
+        <div class="api-info">
+            <h3>📡 API 端点</h3>
+            <div class="endpoint">
+                <strong>API 基础路径:</strong> 
+                <a href="/api" target="_blank">http://localhost:8080/api</a>
+            </div>
+            <div class="endpoint">
+                <strong>健康检查:</strong> 
+                <a href="/actuator/health" target="_blank">http://localhost:8080/actuator/health</a>
+            </div>
+            <div class="endpoint">
+                <strong>API 文档:</strong> 
+                <a href="/api/v3/api-docs" target="_blank">http://localhost:8080/api/v3/api-docs</a>
+            </div>
+            <div class="endpoint">
+                <strong>Swagger UI:</strong> 
+                <a href="/api/swagger-ui/index.html" target="_blank">http://localhost:8080/api/swagger-ui/index.html</a>
+            </div>
+        </div>
+
+        <div class="api-info">
+            <h3>🔐 认证端点</h3>
+            <div class="endpoint">
+                <strong>用户登录:</strong> POST /api/auth/login
+            </div>
+            <div class="endpoint">
+                <strong>用户注册:</strong> POST /api/auth/register
+            </div>
+        </div>
+
+        <div class="api-info">
+            <h3>📊 主要功能</h3>
+            <div class="endpoint">
+                <strong>项目管理:</strong> /api/projects/*
+            </div>
+            <div class="endpoint">
+                <strong>文件管理:</strong> /api/files/*
+            </div>
+            <div class="endpoint">
+                <strong>数据分析:</strong> /api/analysis/*
+            </div>
+            <div class="endpoint">
+                <strong>用户管理:</strong> /api/users/*
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>版本: 1.0.0 | 端口: 8080 | 环境: 开发环境</p>
+            <p>如需访问完整API功能，请访问 <a href="/api" target="_blank">/api</a> 路径</p>
+        </div>
+    </div>
+
+    <script>
+        // 检查API健康状态
+        fetch('/actuator/health')
+            .then(response => response.json())
+            .then(data => {
+                console.log('API健康状态:', data);
+                if (data.status === 'UP') {
+                    document.querySelector('.status').textContent = '✅ 服务运行正常';
+                }
+            })
+            .catch(error => {
+                console.error('健康检查失败:', error);
+                document.querySelector('.status').textContent = '❌ 服务状态未知';
+                document.querySelector('.status').className = 'status error';
+            });
+    </script>
+</body>
+</html>

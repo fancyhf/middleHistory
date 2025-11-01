@@ -1,0 +1,928 @@
+{
+  "summary": {
+    "timestamp": "2025-10-29T14:58:30.798Z",
+    "totalTests": 5,
+    "successfulTests": 5,
+    "failedTests": 0,
+    "successRate": "100.0%"
+  },
+  "testResults": [
+    {
+      "testName": "NLP服务健康检查",
+      "success": true,
+      "endpoint": "/health",
+      "status": 200,
+      "data": {
+        "message": "服务运行正常",
+        "service": "NLP微服务",
+        "status": "healthy",
+        "timestamp": "2025-10-29T22:58:28.124213",
+        "version": "1.0.0"
+      },
+      "timestamp": "2025-10-29T14:58:28.145Z"
+    },
+    {
+      "testName": "词频分析API",
+      "success": true,
+      "endpoint": "/analyze/word-frequency",
+      "status": 200,
+      "data": {
+        "data": {
+          "language": 50,
+          "parameters": {
+            "max_results": 100,
+            "min_length": 2,
+            "remove_stopwords": true
+          },
+          "statistics": {
+            "average_frequency": 1,
+            "filtered_words": 8,
+            "frequency_distribution": {
+              "1": 8
+            },
+            "lexical_diversity": 1,
+            "max_frequency": 1,
+            "min_frequency": 1,
+            "total_words": 8,
+            "unique_words": 8
+          },
+          "timestamp": "2025-10-29T22:58:28.652610",
+          "word_categories": {
+            "high_frequency": [
+              "明朝永乐年间"
+            ],
+            "long_words": [
+              "明朝永乐年间",
+              "郑和率领庞大的船队七次下西洋",
+              "访问了东南亚",
+              "红海等地区的30多个国家和地区",
+              "这些航海活动不仅展示了中国古代的航海技术和造船工艺",
+              "也促进了中外文化交流和贸易往来"
+            ],
+            "low_frequency": [
+              "阿拉伯海",
+              "红海等地区的30多个国家和地区",
+              "这些航海活动不仅展示了中国古代的航海技术和造船工艺",
+              "也促进了中外文化交流和贸易往来"
+            ],
+            "medium_frequency": [
+              "郑和率领庞大的船队七次下西洋",
+              "访问了东南亚",
+              "印度洋"
+            ],
+            "short_words": [
+              "印度洋"
+            ],
+            "single_occurrence": [
+              "明朝永乐年间",
+              "郑和率领庞大的船队七次下西洋",
+              "访问了东南亚",
+              "印度洋",
+              "阿拉伯海",
+              "红海等地区的30多个国家和地区",
+              "这些航海活动不仅展示了中国古代的航海技术和造船工艺",
+              "也促进了中外文化交流和贸易往来"
+            ]
+          },
+          "word_frequency": [
+            {
+              "count": 1,
+              "frequency": 0.125,
+              "word": "明朝永乐年间"
+            },
+            {
+              "count": 1,
+              "frequency": 0.125,
+              "word": "郑和率领庞大的船队七次下西洋"
+            },
+            {
+              "count": 1,
+              "frequency": 0.125,
+              "word": "访问了东南亚"
+            },
+            {
+              "count": 1,
+              "frequency": 0.125,
+              "word": "印度洋"
+            },
+            {
+              "count": 1,
+              "frequency": 0.125,
+              "word": "阿拉伯海"
+            },
+            {
+              "count": 1,
+              "frequency": 0.125,
+              "word": "红海等地区的30多个国家和地区"
+            },
+            {
+              "count": 1,
+              "frequency": 0.125,
+              "word": "这些航海活动不仅展示了中国古代的航海技术和造船工艺"
+            },
+            {
+              "count": 1,
+              "frequency": 0.125,
+              "word": "也促进了中外文化交流和贸易往来"
+            }
+          ]
+        },
+        "message": "词频分析完成",
+        "success": true,
+        "timestamp": "2025-10-29T22:58:28.652610"
+      },
+      "timestamp": "2025-10-29T14:58:28.654Z"
+    },
+    {
+      "testName": "时间轴分析API",
+      "success": true,
+      "endpoint": "/analyze/timeline",
+      "status": 200,
+      "data": {
+        "data": {
+          "events": [
+            {
+              "confidence": 0.7,
+              "entities": [
+                {
+                  "pos": "ns",
+                  "text": "永乐",
+                  "type": "地点"
+                },
+                {
+                  "pos": "n",
+                  "text": "船队",
+                  "type": "概念"
+                },
+                {
+                  "pos": "ns",
+                  "text": "西洋",
+                  "type": "地点"
+                },
+                {
+                  "pos": "ns",
+                  "text": "东南亚",
+                  "type": "地点"
+                },
+                {
+                  "pos": "ns",
+                  "text": "印度洋",
+                  "type": "地点"
+                },
+                {
+                  "pos": "ns",
+                  "text": "阿拉伯海",
+                  "type": "地点"
+                },
+                {
+                  "pos": "ns",
+                  "text": "红海",
+                  "type": "地点"
+                },
+                {
+                  "pos": "n",
+                  "text": "地区",
+                  "type": "概念"
+                },
+                {
+                  "pos": "n",
+                  "text": "国家",
+                  "type": "概念"
+                },
+                {
+                  "pos": "n",
+                  "text": "地区",
+                  "type": "概念"
+                }
+              ],
+              "event_type": "其他",
+              "keywords": [
+                "明朝",
+                "永乐",
+                "年间",
+                "郑和",
+                "率领",
+                "庞大",
+                "船队",
+                "七次",
+                "西洋",
+                "访问"
+              ],
+              "sentence": "明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区",
+              "sentence_index": 0,
+              "time_expressions": [
+                {
+                  "end": 2,
+                  "groups": [
+                    "明"
+                  ],
+                  "priority": 2,
+                  "start": 0,
+                  "text": "明朝",
+                  "type": "dynasty"
+                }
+              ]
+            },
+            {
+              "confidence": 0.7,
+              "entities": [
+                {
+                  "pos": "n",
+                  "text": "航海",
+                  "type": "概念"
+                },
+                {
+                  "pos": "ns",
+                  "text": "中国",
+                  "type": "地点"
+                },
+                {
+                  "pos": "n",
+                  "text": "航海技术",
+                  "type": "概念"
+                },
+                {
+                  "pos": "n",
+                  "text": "造船",
+                  "type": "概念"
+                },
+                {
+                  "pos": "n",
+                  "text": "工艺",
+                  "type": "概念"
+                },
+                {
+                  "pos": "n",
+                  "text": "文化交流",
+                  "type": "概念"
+                }
+              ],
+              "event_type": "其他",
+              "keywords": [
+                "这些",
+                "航海",
+                "活动",
+                "不仅",
+                "展示",
+                "中国",
+                "古代",
+                "航海技术",
+                "造船",
+                "工艺"
+              ],
+              "sentence": "这些航海活动不仅展示了中国古代的航海技术和造船工艺，也促进了中外文化交流和贸易往来",
+              "sentence_index": 1,
+              "time_expressions": [
+                {
+                  "end": 69,
+                  "groups": [
+                    "古代"
+                  ],
+                  "priority": 3,
+                  "start": 67,
+                  "text": "古代",
+                  "type": "relative_period"
+                }
+              ]
+            }
+          ],
+          "summary": {
+            "events_count": 2,
+            "time_expressions_count": 2,
+            "timeline_periods": 1
+          },
+          "time_expressions": [
+            {
+              "end": 2,
+              "groups": [
+                "明"
+              ],
+              "priority": 2,
+              "start": 0,
+              "text": "明朝",
+              "type": "dynasty"
+            },
+            {
+              "end": 69,
+              "groups": [
+                "古代"
+              ],
+              "priority": 3,
+              "start": 67,
+              "text": "古代",
+              "type": "relative_period"
+            }
+          ],
+          "timeline": {
+            "statistics": {
+              "entity_distribution": {
+                "东南亚": 1,
+                "中国": 1,
+                "印度洋": 1,
+                "国家": 1,
+                "地区": 2,
+                "工艺": 1,
+                "文化交流": 1,
+                "永乐": 1,
+                "红海": 1,
+                "航海": 1,
+                "航海技术": 1,
+                "船队": 1,
+                "西洋": 1,
+                "造船": 1,
+                "阿拉伯海": 1
+              },
+              "event_distribution": {
+                "其他": 2
+              },
+              "time_span": {},
+              "total_events": 2,
+              "total_periods": 1
+            },
+            "timeline": [
+              {
+                "event_count": 1,
+                "event_types": {
+                  "其他": 1
+                },
+                "events": [
+                  {
+                    "confidence": 0.7,
+                    "entities": [
+                      {
+                        "pos": "ns",
+                        "text": "永乐",
+                        "type": "地点"
+                      },
+                      {
+                        "pos": "n",
+                        "text": "船队",
+                        "type": "概念"
+                      },
+                      {
+                        "pos": "ns",
+                        "text": "西洋",
+                        "type": "地点"
+                      },
+                      {
+                        "pos": "ns",
+                        "text": "东南亚",
+                        "type": "地点"
+                      },
+                      {
+                        "pos": "ns",
+                        "text": "印度洋",
+                        "type": "地点"
+                      },
+                      {
+                        "pos": "ns",
+                        "text": "阿拉伯海",
+                        "type": "地点"
+                      },
+                      {
+                        "pos": "ns",
+                        "text": "红海",
+                        "type": "地点"
+                      },
+                      {
+                        "pos": "n",
+                        "text": "地区",
+                        "type": "概念"
+                      },
+                      {
+                        "pos": "n",
+                        "text": "国家",
+                        "type": "概念"
+                      },
+                      {
+                        "pos": "n",
+                        "text": "地区",
+                        "type": "概念"
+                      }
+                    ],
+                    "event_type": "其他",
+                    "keywords": [
+                      "明朝",
+                      "永乐",
+                      "年间",
+                      "郑和",
+                      "率领",
+                      "庞大",
+                      "船队",
+                      "七次",
+                      "西洋",
+                      "访问"
+                    ],
+                    "sentence": "明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区",
+                    "sentence_index": 0,
+                    "time_expressions": [
+                      {
+                        "end": 2,
+                        "groups": [
+                          "明"
+                        ],
+                        "priority": 2,
+                        "start": 0,
+                        "text": "明朝",
+                        "type": "dynasty"
+                      }
+                    ]
+                  }
+                ],
+                "period": "未知朝代",
+                "sort_key": 0,
+                "time_range": {
+                  "end": null,
+                  "start": null
+                },
+                "top_entities": [
+                  {
+                    "count": 2,
+                    "name": "地区"
+                  },
+                  {
+                    "count": 1,
+                    "name": "永乐"
+                  },
+                  {
+                    "count": 1,
+                    "name": "船队"
+                  },
+                  {
+                    "count": 1,
+                    "name": "西洋"
+                  },
+                  {
+                    "count": 1,
+                    "name": "东南亚"
+                  },
+                  {
+                    "count": 1,
+                    "name": "印度洋"
+                  },
+                  {
+                    "count": 1,
+                    "name": "阿拉伯海"
+                  },
+                  {
+                    "count": 1,
+                    "name": "红海"
+                  },
+                  {
+                    "count": 1,
+                    "name": "国家"
+                  }
+                ]
+              }
+            ],
+            "total_events": 2,
+            "total_periods": 1
+          }
+        },
+        "message": "时间轴分析完成",
+        "success": true,
+        "timestamp": "2025-10-29T22:58:29.722712"
+      },
+      "timestamp": "2025-10-29T14:58:29.725Z"
+    },
+    {
+      "testName": "地理分析API",
+      "success": true,
+      "endpoint": "/analyze/geographic",
+      "status": 200,
+      "data": {
+        "data": {
+          "distribution": {
+            "coverage_analysis": {
+              "coordinate_bounds": null,
+              "provinces_covered": [],
+              "regions_covered": []
+            },
+            "geo_center": null,
+            "heatmap_data": [],
+            "historical_modern_ratio": {
+              "historical": 0,
+              "modern": 7,
+              "ratio": 0
+            },
+            "level_distribution": {
+              "feature": 2,
+              "未知": 5
+            },
+            "province_distribution": {
+              "null": 7
+            },
+            "region_distribution": {
+              "null": 7
+            },
+            "total_places": 7,
+            "type_distribution": {
+              "未知": 5,
+              "水体": 2
+            }
+          },
+          "map_data": {
+            "connections": [],
+            "map_center": null,
+            "markers": [],
+            "region_stats": {},
+            "zoom_level": 5
+          },
+          "places": [
+            {
+              "confidence": 0.7,
+              "geo_relations": {
+                "children": [],
+                "parent": null,
+                "province": null,
+                "region": null
+              },
+              "is_historical": false,
+              "length": 2,
+              "name": "永乐",
+              "position": 2,
+              "source": "pos_tagging"
+            },
+            {
+              "confidence": 0.7,
+              "geo_relations": {
+                "children": [],
+                "parent": null,
+                "province": null,
+                "region": null
+              },
+              "is_historical": false,
+              "length": 2,
+              "name": "西洋",
+              "position": 19,
+              "source": "pos_tagging"
+            },
+            {
+              "confidence": 0.7,
+              "geo_relations": {
+                "children": [],
+                "parent": null,
+                "province": null,
+                "region": null
+              },
+              "is_historical": false,
+              "length": 3,
+              "name": "东南亚",
+              "position": 25,
+              "source": "pos_tagging"
+            },
+            {
+              "confidence": 0.7,
+              "geo_relations": {
+                "children": [],
+                "parent": null,
+                "province": null,
+                "region": null
+              },
+              "is_historical": false,
+              "length": 3,
+              "name": "印度洋",
+              "position": 29,
+              "source": "pos_tagging"
+            },
+            {
+              "confidence": 0.7,
+              "geo_relations": {
+                "children": [],
+                "parent": null,
+                "province": null,
+                "region": null
+              },
+              "is_historical": false,
+              "length": 4,
+              "level": "feature",
+              "name": "阿拉伯海",
+              "position": 33,
+              "source": "pos_tagging",
+              "type": "水体"
+            },
+            {
+              "confidence": 0.7,
+              "geo_relations": {
+                "children": [],
+                "parent": null,
+                "province": null,
+                "region": null
+              },
+              "is_historical": false,
+              "length": 2,
+              "level": "feature",
+              "name": "红海",
+              "position": 38,
+              "source": "pos_tagging",
+              "type": "水体"
+            },
+            {
+              "confidence": 0.7,
+              "geo_relations": {
+                "children": [],
+                "parent": null,
+                "province": null,
+                "region": null
+              },
+              "is_historical": false,
+              "length": 2,
+              "name": "中国",
+              "position": 65,
+              "source": "pos_tagging"
+            }
+          ],
+          "summary": {
+            "historical_places": 0,
+            "provinces_covered": 0,
+            "regions_covered": 0,
+            "total_places": 7,
+            "unique_places": 7
+          }
+        },
+        "message": "地理位置分析完成",
+        "success": true,
+        "timestamp": "2025-10-29T22:58:30.245445"
+      },
+      "timestamp": "2025-10-29T14:58:30.247Z"
+    },
+    {
+      "testName": "文本摘要API",
+      "success": true,
+      "endpoint": "/analyze/summary",
+      "status": 200,
+      "data": {
+        "data": {
+          "key_topics": [
+            {
+              "description": "关于地区 明朝 永乐的主题",
+              "keywords": [
+                {
+                  "frequency": 2,
+                  "importance": 1,
+                  "score": 2,
+                  "word": "地区"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "明朝"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "永乐"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "年间"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "郑和"
+                }
+              ],
+              "topic_id": 1,
+              "total_score": 6
+            },
+            {
+              "description": "关于率领 庞大 船队的主题",
+              "keywords": [
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "率领"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "庞大"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "船队"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "七次"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "西洋"
+                }
+              ],
+              "topic_id": 2,
+              "total_score": 5
+            },
+            {
+              "description": "关于访问 东南亚 印度洋的主题",
+              "keywords": [
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "访问"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "东南亚"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "印度洋"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "阿拉伯海"
+                },
+                {
+                  "frequency": 1,
+                  "importance": 1,
+                  "score": 1,
+                  "word": "红海"
+                }
+              ],
+              "topic_id": 3,
+              "total_score": 5
+            }
+          ],
+          "multi_level_summaries": {
+            "levels": [
+              0.1,
+              0.3,
+              0.5
+            ],
+            "multi_level_summaries": {
+              "level_10": {
+                "key_sentences": [
+                  {
+                    "index": 0,
+                    "length": 54,
+                    "score": 1,
+                    "sentence": "明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区。",
+                    "word_count": 31
+                  }
+                ],
+                "method": "combined",
+                "original_sentence_count": 2,
+                "statistics": {
+                  "average_sentence_score": 0.9387545787545788,
+                  "compression_ratio": 0.5625,
+                  "max_sentence_score": 1,
+                  "min_sentence_score": 0.8775091575091576,
+                  "original_length": 96,
+                  "original_sentences": 2,
+                  "original_word_count": 53,
+                  "sentence_compression_ratio": 0.5,
+                  "summary_length": 54,
+                  "summary_sentences": 1,
+                  "summary_word_count": 31,
+                  "unique_words_original": 41,
+                  "unique_words_summary": 26,
+                  "vocabulary_retention": 0.6341463414634146,
+                  "word_compression_ratio": 0.5849056603773585
+                },
+                "summary": "明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区。",
+                "summary_sentence_count": 1
+              },
+              "level_30": {
+                "key_sentences": [
+                  {
+                    "index": 0,
+                    "length": 54,
+                    "score": 1,
+                    "sentence": "明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区。",
+                    "word_count": 31
+                  }
+                ],
+                "method": "combined",
+                "original_sentence_count": 2,
+                "statistics": {
+                  "average_sentence_score": 0.9387545787545788,
+                  "compression_ratio": 0.5625,
+                  "max_sentence_score": 1,
+                  "min_sentence_score": 0.8775091575091576,
+                  "original_length": 96,
+                  "original_sentences": 2,
+                  "original_word_count": 53,
+                  "sentence_compression_ratio": 0.5,
+                  "summary_length": 54,
+                  "summary_sentences": 1,
+                  "summary_word_count": 31,
+                  "unique_words_original": 41,
+                  "unique_words_summary": 26,
+                  "vocabulary_retention": 0.6341463414634146,
+                  "word_compression_ratio": 0.5849056603773585
+                },
+                "summary": "明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区。",
+                "summary_sentence_count": 1
+              },
+              "level_50": {
+                "key_sentences": [
+                  {
+                    "index": 0,
+                    "length": 54,
+                    "score": 1,
+                    "sentence": "明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区。",
+                    "word_count": 31
+                  }
+                ],
+                "method": "combined",
+                "original_sentence_count": 2,
+                "statistics": {
+                  "average_sentence_score": 0.9387545787545788,
+                  "compression_ratio": 0.5625,
+                  "max_sentence_score": 1,
+                  "min_sentence_score": 0.8775091575091576,
+                  "original_length": 96,
+                  "original_sentences": 2,
+                  "original_word_count": 53,
+                  "sentence_compression_ratio": 0.5,
+                  "summary_length": 54,
+                  "summary_sentences": 1,
+                  "summary_word_count": 31,
+                  "unique_words_original": 41,
+                  "unique_words_summary": 26,
+                  "vocabulary_retention": 0.6341463414634146,
+                  "word_compression_ratio": 0.5849056603773585
+                },
+                "summary": "明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区。",
+                "summary_sentence_count": 1
+              }
+            },
+            "original_text_length": 96
+          },
+          "quality_evaluation": {
+            "coherence": 1,
+            "conciseness": 0.625,
+            "coverage": 0.5806451612903226,
+            "informativeness": 0,
+            "overall_score": 0.6411935483870967,
+            "readability": 0.92
+          },
+          "summary": {
+            "key_sentences": [
+              {
+                "index": 0,
+                "length": 54,
+                "score": 1,
+                "sentence": "明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区。",
+                "word_count": 31
+              }
+            ],
+            "method": "combined",
+            "original_sentence_count": 2,
+            "statistics": {
+              "average_sentence_score": 0.9387545787545788,
+              "compression_ratio": 0.5625,
+              "max_sentence_score": 1,
+              "min_sentence_score": 0.8775091575091576,
+              "original_length": 96,
+              "original_sentences": 2,
+              "original_word_count": 53,
+              "sentence_compression_ratio": 0.5,
+              "summary_length": 54,
+              "summary_sentences": 1,
+              "summary_word_count": 31,
+              "unique_words_original": 41,
+              "unique_words_summary": 26,
+              "vocabulary_retention": 0.6341463414634146,
+              "word_compression_ratio": 0.5849056603773585
+            },
+            "summary": "明朝永乐年间，郑和率领庞大的船队七次下西洋，访问了东南亚、印度洋、阿拉伯海、红海等地区的30多个国家和地区。",
+            "summary_sentence_count": 1
+          },
+          "text_statistics": {
+            "original_length": 96,
+            "original_sentences": 2,
+            "original_words": 53
+          }
+        },
+        "message": "文本摘要分析完成",
+        "success": true,
+        "timestamp": "2025-10-29T22:58:30.793135"
+      },
+      "timestamp": "2025-10-29T14:58:30.795Z"
+    }
+  ]
+}
