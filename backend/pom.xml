@@ -104,6 +104,13 @@
             <version>1.5</version>
         </dependency>
         
+        <!-- Apache Commons IO (required for POI) -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        
         <!-- Apache POI for document processing -->
         <dependency>
             <groupId>org.apache.poi</groupId>

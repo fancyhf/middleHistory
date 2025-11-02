@@ -9,7 +9,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { message } from 'antd'
 
 // API基础配置
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 const NLP_BASE_URL = import.meta.env.VITE_NLP_BASE_URL || 'http://localhost:5001/api'
 
 // 创建主API实例

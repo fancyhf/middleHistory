@@ -10,6 +10,8 @@
 
 本文档记录历史数据统计分析工具项目的完整开发环境配置，包括所有已安装的开发工具、运行时环境、数据库配置和服务端口分配。
 
+**⚠️ 重要提醒**: 需要启动项目时，请参考 **AI Agent项目启动指南** 文档 (`AI-Agent-项目启动指南.md`)，该文档提供了详细的启动步骤和故障排除方法。
+
 ## 2. 已安装开发环境
 
 ### 2.1 核心运行时环境
@@ -28,6 +30,13 @@
 | MySQL | 8.4.6 | D:\programenv\MySQL-8.4.6 | 3306 | ✅ 运行中 |
 | H2 Database | 内嵌 | 项目内存 | 8080/h2-console | ✅ 可用 |
 | Redis | 7.0+ | H:\开发环境\Redis | 6379 | ❌ 需要安装 |
+
+**MySQL详细状态**:
+- **配置文件**: D:\programenv\MySQL-8.4.6\my-8.4.ini
+- **数据库**: history_analysis
+- **用户**: history_user / history_password
+- **Root用户**: root / root123456
+- **启动命令**: `& "D:\programenv\MySQL-8.4.6\bin\mysqld.exe" --defaults-file="D:\programenv\MySQL-8.4.6\my-8.4.ini" --console`
 
 ### 2.3 Node.js详细配置
 
@@ -124,11 +133,15 @@ spring:
 
 - **版本**: 8.4.6
 - **安装路径**: D:\programenv\MySQL-8.4.6
+- **配置文件**: D:\programenv\MySQL-8.4.6\my-8.4.ini
 - **数据目录**: D:\programenv\MySQL-8.4.6\data
 - **端口**: 3306
 - **字符集**: utf8mb4
 - **排序规则**: utf8mb4_unicode_ci
-- **用户**: root / root123456
+- **Root用户**: root / root123456
+- **项目用户**: history_user / history_password
+- **项目数据库**: history_analysis
+- **当前状态**: ✅ 运行中
 
 ### 5.2 H2数据库配置
 
@@ -143,22 +156,32 @@ spring:
 ### 6.1 当前运行的后台命令
 
 ```powershell
-# MySQL服务
-.\mysqld.exe --no-defaults --basedir="D:\programenv\MySQL-8.4.6" --datadir="D:\programenv\MySQL-8.4.6\data" --port=3306 --console
-# 命令ID: f68c7e79-bfb1-471e-9510-cd7fbb42f2e5
+# MySQL服务 (使用配置文件启动)
+& "D:\programenv\MySQL-8.4.6\bin\mysqld.exe" --defaults-file="D:\programenv\MySQL-8.4.6\my-8.4.ini" --console
+# 命令ID: 8deff531-6657-4af7-a461-ce733b4e46fe
 
-# 后端Spring Boot服务
-$env:PATH += ";H:\开发环境\Maven\apache-maven-3.9.6\bin"; mvn spring-boot:run
-# 命令ID: c3e7fcb1-d62a-401c-b6cf-ed6edd66bc59
+# 后端Spring Boot服务 (使用MySQL配置)
+$env:MAVEN_HOME = "H:\开发环境\Maven\apache-maven-3.9.6"
+$env:PATH = "$env:MAVEN_HOME\bin;$env:PATH"
+mvn spring-boot:run -Dspring.profiles.active=mysql
+# 命令ID: fe07df15-8857-4938-86a5-4c40e9d6e24c
 
 # 前端React服务
 npm run dev
-# 命令ID: 84edebc6-61e2-4c3f-8a79-583dae51b401
+# 命令ID: cc13bd76-bcf3-4de8-8dfc-d3ffbe78b45c
 
 # NLP Python服务
 python app.py
-# 命令ID: 8b1d16db-a598-4eca-b1db-e39847e0e444
+# 命令ID: fbd8d42f-6bd6-461e-bf47-64cb9bafdb69
 ```
+
+**启动顺序说明**: 
+1. 首先启动MySQL数据库服务
+2. 然后启动NLP服务 (后端依赖)
+3. 接着启动Spring Boot后端服务
+4. 最后启动React前端服务
+
+**详细启动指南**: 请参考 `AI-Agent-项目启动指南.md` 文档
 
 ## 7. 项目结构
 

@@ -250,8 +250,8 @@ const TextAnalysis: React.FC = () => {
   const fileColumns: TableColumnsType<FileInfo> = [
     {
       title: '文件名',
-      dataIndex: 'originalName',
-      key: 'originalName',
+      dataIndex: 'originalFileName',
+      key: 'originalFileName',
       render: (text: string) => (
         <Space>
           <FileTextOutlined />
@@ -261,14 +261,14 @@ const TextAnalysis: React.FC = () => {
     },
     {
       title: '文件大小',
-      dataIndex: 'fileSize',
-      key: 'fileSize',
-      render: (size: number) => fileService.formatFileSize(size)
+      dataIndex: 'formattedSize',
+      key: 'formattedSize',
+      render: (size: string) => size
     },
     {
       title: '上传时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      dataIndex: 'uploadTime',
+      key: 'uploadTime',
       render: (date: string) => new Date(date).toLocaleString()
     },
     {
@@ -276,8 +276,8 @@ const TextAnalysis: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
-        <Tag color={status === 'PROCESSED' ? 'green' : status === 'PROCESSING' ? 'blue' : 'red'}>
-          {status === 'PROCESSED' ? '已处理' : status === 'PROCESSING' ? '处理中' : '失败'}
+        <Tag color={status === 'PROCESSED' ? 'green' : status === 'PROCESSING' ? 'blue' : status === 'UPLOADED' ? 'orange' : 'red'}>
+          {status === 'PROCESSED' ? '已处理' : status === 'PROCESSING' ? '处理中' : status === 'UPLOADED' ? '已上传' : '失败'}
         </Tag>
       )
     }

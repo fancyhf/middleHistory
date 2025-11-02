@@ -16,35 +16,17 @@ spring:
   application:
     name: history-analysis-backend
   
-  # 数据源配置 - 使用H2内存数据库（开发环境）
-  datasource:
-    url: jdbc:h2:mem:history_analysis;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password: 
-    driver-class-name: org.h2.Driver
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+  # 数据源配置在profile-specific文件中定义
+  # 使用 application-mysql.yml 或 application-h2.yml
   
-  # H2控制台配置
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  
-  # JPA配置
+  # JPA配置 - 基础配置，具体方言在profile中定义
   jpa:
     hibernate:
-      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
         use_sql_comments: true
   

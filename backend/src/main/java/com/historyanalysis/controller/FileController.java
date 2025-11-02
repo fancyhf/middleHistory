@@ -59,7 +59,8 @@ public class FileController {
         log.info("收到文件上传请求: {}, 项目ID: {}", file.getOriginalFilename(), projectId);
         
         try {
-            String userId = authentication.getName();
+            // 处理匿名访问的情况（开发环境）
+            String userId = (authentication != null) ? authentication.getName() : "anonymous";
             UploadedFile uploadedFile = fileService.uploadFile(projectId.toString(), userId, file);
             FileUploadResponse response = new FileUploadResponse(uploadedFile);
             

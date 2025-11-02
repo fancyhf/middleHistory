@@ -28,17 +28,21 @@ public class FileUploadResponse {
      * 从UploadedFile实体创建响应对象的构造函数
      */
     public FileUploadResponse(UploadedFile uploadedFile) {
-        this.id = Long.valueOf(uploadedFile.getId());
+        this.id = uploadedFile.getId();
+        this.projectId = String.valueOf(uploadedFile.getProject().getId());
         this.fileName = uploadedFile.getFilename();
         this.originalFileName = uploadedFile.getFilename();
-        this.fileType = uploadedFile.getFileType().name();
+        this.fileType = uploadedFile.getFileType() != null ? uploadedFile.getFileType().name().toLowerCase() : null;
         this.fileSize = uploadedFile.getFileSize();
-        this.formattedSize = formatFileSize(uploadedFile.getFileSize());
+        this.formattedSize = uploadedFile.getFormattedFileSize();
         this.status = "UPLOADED";
         this.processStatus = "PENDING";
-        this.projectId = Long.valueOf(uploadedFile.getProject().getId());
         this.uploadTime = uploadedFile.getUploadedAt();
-        this.canAnalyze = true;
+        this.canAnalyze = uploadedFile.getFileType() != null && 
+                         (uploadedFile.getFileType() == UploadedFile.FileType.TXT ||
+                          uploadedFile.getFileType() == UploadedFile.FileType.PDF ||
+                          uploadedFile.getFileType() == UploadedFile.FileType.DOC ||
+                          uploadedFile.getFileType() == UploadedFile.FileType.DOCX);
     }
 
     /**
@@ -55,7 +59,7 @@ public class FileUploadResponse {
     /**
      * 文件ID
      */
-    private Long id;
+    private String id;
 
     /**
      * 文件名
@@ -95,7 +99,7 @@ public class FileUploadResponse {
     /**
      * 项目ID
      */
-    private Long projectId;
+    private String projectId;
 
     /**
      * 文件MD5哈希值

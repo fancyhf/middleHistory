@@ -137,15 +137,20 @@ public class SecurityConfig {
             
             // 配置请求授权
             .authorizeHttpRequests(authz -> authz
-                // 公开端点 - 不需要认证
+                // 核心功能 - 对匿名用户完全开放（提升用户体验）
                 .requestMatchers(
                     "/",                      // 根路径欢迎页面
                     "/api",                   // API根路径信息
                     "/api/auth/**",           // 认证相关接口
                     "/api/public/**",         // 公开接口
+                    "/api/files/**",          // 文件上传接口
+                    "/files/**",              // 文件上传接口
+                    "/api/analysis/**",       // 文本分析接口（核心功能）
+                    "/analysis/**",           // 分析接口（核心功能）
+                    "/api/nlp/**",            // NLP服务接口（核心功能）
+                    "/nlp/**",                // NLP服务接口（核心功能）
                     "/actuator/health",       // 健康检查端点
                     "/actuator/info",         // 应用信息端点
-                    "/actuator/**",           // 所有actuator端点（临时开放用于调试）
                     "/swagger-ui/**",         // Swagger UI
                     "/api/swagger-ui/**",     // Swagger UI（API路径）
                     "/v3/api-docs/**",        // OpenAPI文档
@@ -155,25 +160,26 @@ public class SecurityConfig {
                 
                 // 管理员专用接口
                 .requestMatchers(
-                    "/admin/**",          // 管理员接口
-                    "/actuator/metrics",  // 监控指标
-                    "/actuator/prometheus", // Prometheus指标
-                    "/actuator/env",      // 环境信息
-                    "/actuator/configprops", // 配置属性
-                    "/actuator/beans",    // Bean信息
-                    "/actuator/mappings"  // 映射信息
+                    "/admin/**",              // 管理员接口
+                    "/actuator/metrics",      // 监控指标
+                    "/actuator/prometheus",   // Prometheus指标
+                    "/actuator/env",          // 环境信息
+                    "/actuator/configprops",  // 配置属性
+                    "/actuator/beans",        // Bean信息
+                    "/actuator/mappings",     // 映射信息
+                    "/actuator/**"            // 其他actuator端点
                 ).hasRole("ADMIN")
                 
-                // 用户接口 - 需要认证
+                // 个人数据管理 - 需要认证（保护用户隐私）
                 .requestMatchers(
-                    "/users/**",          // 用户管理
-                    "/projects/**",       // 项目管理
-                    "/files/**",          // 文件管理
-                    "/analysis/**"        // 分析管理
+                    "/api/users/**",          // 用户管理
+                    "/users/**",              // 用户管理
+                    "/api/projects/**",       // 项目管理
+                    "/projects/**"            // 项目管理
                 ).authenticated()
                 
-                // 其他所有请求都需要认证
-                .anyRequest().authenticated()
+                // 其他请求默认允许（降低使用门槛）
+                .anyRequest().permitAll()
             )
             
             // 配置认证提供者

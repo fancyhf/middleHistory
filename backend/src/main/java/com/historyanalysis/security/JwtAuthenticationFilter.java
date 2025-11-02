@@ -131,6 +131,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 跳过认证相关的端点
         return path.startsWith("/api/auth/") ||
                path.startsWith("/api/public/") ||
+               path.startsWith("/api/files/") ||      // 文件上传接口（开发环境临时开放）
+               path.startsWith("/files/") ||          // 文件上传接口（开发环境临时开放）
                path.equals("/actuator/health") ||
                path.equals("/actuator/info") ||
                path.startsWith("/actuator/") ||

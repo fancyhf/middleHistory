@@ -8,30 +8,29 @@
 import { api, ApiResponse, PaginatedResponse } from './api'
 
 // 文件状态枚举
-export type FileStatus = 'UPLOADING' | 'PROCESSING' | 'PROCESSED' | 'FAILED'
+export type FileStatus = 'UPLOADING' | 'PROCESSING' | 'PROCESSED' | 'FAILED' | 'UPLOADED'
 
 // 文件类型枚举
 export type FileType = 'txt' | 'doc' | 'docx' | 'pdf' | 'rtf'
 
-// 文件接口
+// 文件接口 - 与后端FileUploadResponse匹配
 export interface FileInfo {
-  id: number
-  filename: string
-  originalFilename: string
-  filePath: string
+  id: string  // 后端使用String类型的UUID
+  fileName: string
+  originalFileName: string
+  fileType?: string
   fileSize: number
-  fileType: FileType
-  mimeType: string
-  projectId: number
-  userId: number
-  contentHash: string
-  textContent?: string
-  textLength: number
-  status: FileStatus
+  formattedSize: string
+  status: string
+  processStatus: string
+  projectId: string
+  md5Hash?: string
+  contentPreview?: string
+  uploadTime: string
+  processedTime?: string
   errorMessage?: string
-  uploadProgress?: number
-  createdAt: string
-  updatedAt: string
+  downloadUrl?: string
+  canAnalyze: boolean
 }
 
 // 文件上传请求接口
@@ -132,7 +131,7 @@ class FileService {
       const formData = new FormData()
       formData.append('projectId', projectId.toString())
       
-      files.forEach((file, index) => {
+      files.forEach((file) => {
         formData.append(`files`, file)
       })
 

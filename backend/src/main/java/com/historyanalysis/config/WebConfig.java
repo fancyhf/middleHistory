@@ -22,14 +22,19 @@ public class WebConfig implements WebMvcConfigurer {
 
     /**
      * 配置静态资源处理
-     * 由于应用使用了context-path: /api，需要特殊处理根路径的静态资源
+     * 只处理静态资源，不拦截API请求
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 配置根路径静态资源映射
-        registry.addResourceHandler("/**")
+        // 配置静态资源映射，只处理静态文件
+        registry.addResourceHandler("/static/**")
                 .addResourceLocations("classpath:/static/")
                 .setCachePeriod(3600); // 缓存1小时
+        
+        // 配置上传文件访问路径
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/")
+                .setCachePeriod(3600);
     }
 
     /**
