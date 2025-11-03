@@ -7,6 +7,7 @@
  */
 package com.historyanalysis.controller;
 
+import com.historyanalysis.dto.AnalysisRequest;
 import com.historyanalysis.entity.AnalysisResult;
 import com.historyanalysis.entity.WordFrequency;
 import com.historyanalysis.entity.TimelineEvent;
@@ -53,19 +54,15 @@ public class AnalysisController {
      * 创建分析任务
      */
     @PostMapping("/create")
-    public ResponseEntity<Map<String, Object>> createAnalysis(@RequestBody Map<String, String> request) {
-        logger.info("创建分析任务请求, projectId={}, analysisType={}", 
-                   request.get("projectId"), request.get("analysisType"));
+    public ResponseEntity<Map<String, Object>> createAnalysis(@RequestBody AnalysisRequest request) {
+        logger.info("创建分析任务请求, projectId={}, analysisType={}, fileIds={}", 
+                   request.getProjectId(), request.getAnalysisType(), request.getFileIds());
 
         Map<String, Object> response = new HashMap<>();
 
         try {
-            String projectId = request.get("projectId");
-            String analysisTypeStr = request.get("analysisType");
-            String description = request.get("description");
-
             // 参数验证
-            if (!StringUtils.hasText(projectId) || !StringUtils.hasText(analysisTypeStr)) {
+            if (request.getProjectId() == null || !StringUtils.hasText(request.getAnalysisType())) {
                 response.put("success", false);
                 response.put("message", "项目ID和分析类型不能为空");
                 return ResponseEntity.badRequest().body(response);
@@ -74,15 +71,19 @@ public class AnalysisController {
             // 解析分析类型
             AnalysisResult.AnalysisType analysisType;
             try {
-                analysisType = AnalysisResult.AnalysisType.valueOf(analysisTypeStr.toUpperCase());
+                analysisType = AnalysisResult.AnalysisType.valueOf(request.getAnalysisType().toUpperCase());
             } catch (IllegalArgumentException e) {
                 response.put("success", false);
-                response.put("message", "无效的分析类型: " + analysisTypeStr);
+                response.put("message", "无效的分析类型: " + request.getAnalysisType());
                 return ResponseEntity.badRequest().body(response);
             }
 
             // 创建分析任务
-            AnalysisResult analysisResult = analysisService.createAnalysis(projectId, analysisType, description);
+            AnalysisResult analysisResult = analysisService.createAnalysis(
+                request.getProjectId().toString(), 
+                analysisType, 
+                request.getDescription()
+            );
 
             response.put("success", true);
             response.put("message", "分析任务创建成功");
@@ -694,6 +695,67 @@ public class AnalysisController {
         eventResponse.put("dateType", "SPECIFIC"); // 默认值，因为实体类中没有 dateType 字段
         eventResponse.put("confidence", 1.0); // 默认值，因为实体类中没有 confidence 字段
         return eventResponse;
+    }
+
+    /**
+     * 获取分析进度
+     */
+    @GetMapping("/{id}/progress")
+    public ResponseEntity<Map<String, Object>> getAnalysisProgress(@PathVariable Long id) {
+        try {
+            logger.info("获取分析进度, analysisId={}", id);
+            
+            // 查询分析结果
+            Optional<AnalysisResult> analysisOpt = analysisService.findById(id.toString());
+            if (!analysisOpt.isPresent()) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "分析任务不存在");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+            }
+            
+            AnalysisResult analysis = analysisOpt.get();
+            
+            Map<String, Object> progressData = new HashMap<>();
+            progressData.put("progress", analysis.getProgress() != null ? analysis.getProgress() : 0);
+            progressData.put("status", analysis.getStatus());
+            progressData.put("message", getProgressMessage(analysis.getStatus()));
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "获取进度成功");
+            response.put("data", progressData);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("获取分析进度失败: {}", e.getMessage(), e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "获取分析进度失败: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
+    /**
+     * 获取进度消息
+     */
+    private String getProgressMessage(AnalysisResult.AnalysisStatus status) {
+        if (status == null) {
+            return "未知状态";
+        }
+        
+        switch (status) {
+            case PENDING:
+                return "任务等待中...";
+            case PROCESSING:
+                return "分析进行中...";
+            case COMPLETED:
+                return "分析已完成";
+            case FAILED:
+                return "分析失败";
+            default:
+                return "未知状态";
+        }
     }
 
     /**

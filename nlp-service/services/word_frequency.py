@@ -57,7 +57,6 @@ class WordFrequencyAnalyzer:
         
         # 检测语言
         detected_language = self._detect_language(text) if language == 'auto' else language
-        
         # 分词
         words = self._tokenize(text, detected_language)
         
@@ -78,7 +77,7 @@ class WordFrequencyAnalyzer:
         
         result = {
             'word_frequency': [{'word': word, 'count': count, 'frequency': count / len(filtered_words)} 
-                              for word, count in top_words],
+                              for word, count in top_words] if filtered_words else [],
             'statistics': stats,
             'word_categories': word_categories,
             'language': detected_language,
@@ -124,27 +123,31 @@ class WordFrequencyAnalyzer:
     
     def _tokenize_chinese(self, text: str) -> List[str]:
         """中文分词（简单实现）"""
-        # 移除标点符号和特殊字符
+        # 移除标点符号和特殊字符，但保留中文字符
         text = re.sub(r'[^\u4e00-\u9fff\w\s]', ' ', text)
         
-        # 简单的中文分词：按字符分割，然后尝试组合常见词汇
+        # 简化的中文分词：直接按字符分割中文，按空格分割英文
         words = []
         i = 0
         while i < len(text):
             char = text[i]
+            
             if '\u4e00' <= char <= '\u9fff':  # 中文字符
-                # 尝试匹配2-4字的词汇
+                # 对于中文，先尝试组合成词，如果不行就按单字处理
+                # 尝试匹配2-3字的常见词汇
                 found_word = False
-                for length in range(4, 0, -1):
+                for length in range(3, 1, -1):  # 从3字词到2字词
                     if i + length <= len(text):
                         word = text[i:i+length]
-                        if self._is_valid_chinese_word(word):
+                        is_common = self._is_common_chinese_word(word)
+                        if length == 2 or is_common:
                             words.append(word)
                             i += length
                             found_word = True
                             break
                 
                 if not found_word:
+                    # 添加单个中文字符
                     words.append(char)
                     i += 1
             elif char.isalpha():  # 英文字符
@@ -155,6 +158,8 @@ class WordFrequencyAnalyzer:
                 word = text[word_start:i].lower()
                 if word:
                     words.append(word)
+            elif char.isspace():
+                i += 1
             else:
                 i += 1
         
@@ -182,19 +187,27 @@ class WordFrequencyAnalyzer:
     
     def _is_valid_chinese_word(self, word: str) -> bool:
         """判断是否为有效的中文词汇"""
-        if len(word) < 2:
+        # 对于中文词汇，只要包含中文字符就认为是有效的
+        if any('\u4e00' <= char <= '\u9fff' for char in word):
             return True
         
-        # 简单的中文词汇验证（可以扩展为更复杂的词典匹配）
+        # 对于非中文词汇，长度至少为2
+        return len(word) >= 2
+    
+    def _is_common_chinese_word(self, word: str) -> bool:
+        """判断是否为常见的中文词汇"""
+        # 常见的中文词汇列表
         common_words = {
-            '中国', '人民', '社会', '发展', '经济', '政治', '文化', '历史', '科学', '技术',
+            '中国', '历史', '文化', '发展', '社会', '人民', '政治', '经济', '科学', '技术',
             '教育', '医疗', '环境', '资源', '能源', '交通', '通信', '网络', '信息', '数据',
             '系统', '管理', '服务', '产品', '市场', '企业', '公司', '组织', '机构', '部门',
             '工作', '学习', '研究', '分析', '设计', '开发', '建设', '改革', '创新', '进步',
-            '问题', '解决', '方法', '方式', '途径', '措施', '政策', '法律', '制度', '规则'
+            '问题', '解决', '方法', '方式', '途径', '措施', '政策', '法律', '制度', '规则',
+            '悠久', '灿烂', '古代', '现代', '朝代', '王朝', '皇帝', '大臣', '官员', '百姓',
+            '夏商', '秦汉', '唐宋', '明清', '统一', '繁荣', '衰落', '兴起', '变迁', '演变'
         }
         
-        return word in common_words or len(word) >= 2
+        return word in common_words
     
     def _filter_words(self, words: List[str], language: str, min_length: int, 
                      remove_stopwords: bool) -> List[str]:

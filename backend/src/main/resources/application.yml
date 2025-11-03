@@ -90,7 +90,7 @@ file:
 # NLP服务配置
 nlp:
   service:
-    url: http://localhost:5000
+    url: http://localhost:5001
     timeout: 30000
     retry:
       max-attempts: 3

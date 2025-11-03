@@ -24,7 +24,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        // 不重写路径，保持/api前缀
       },
       '/actuator': {
         target: 'http://localhost:8080',

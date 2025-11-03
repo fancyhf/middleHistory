@@ -237,10 +237,18 @@ class AnalysisService {
    */
   async createAnalysis(request: AnalysisRequest): Promise<AnalysisResult> {
     try {
-      const response: ApiResponse<AnalysisResult> = await api.post('/analysis', request)
+      // 转换请求格式以匹配后端期望
+      const backendRequest = {
+        projectId: request.projectId.toString(),
+        analysisType: request.analysisType,
+        description: request.parameters?.description || `${request.analysisType}分析任务`
+      }
 
-      if (response.success && response.data) {
-        return response.data
+      const response: any = await api.post('/api/analysis/create', backendRequest)
+
+      // 后端直接返回 { success, message, analysis } 格式
+      if (response.success && response.analysis) {
+        return response.analysis as AnalysisResult
       } else {
         throw new Error(response.message || '创建分析任务失败')
       }
@@ -255,20 +263,31 @@ class AnalysisService {
    */
   async getAnalysisResults(params?: AnalysisQueryParams): Promise<PaginatedResponse<AnalysisResult>> {
     try {
-      const response: ApiResponse<PaginatedResponse<AnalysisResult>> = await api.get('/analysis', {
+      // 如果没有提供 projectId，抛出错误
+      if (!params?.projectId) {
+        throw new Error('项目ID是必需的')
+      }
+
+      const response: any = await api.get(`/api/analysis/project/${params.projectId}`, {
         params: {
           page: params?.page || 0,
           size: params?.size || 10,
-          projectId: params?.projectId,
           analysisType: params?.analysisType,
           status: params?.status,
           sortBy: params?.sortBy || 'createdAt',
-          sortDirection: params?.sortDirection || 'DESC'
+          sortDir: params?.sortDirection || 'desc'
         }
       })
 
-      if (response.success && response.data) {
-        return response.data
+      if (response.success) {
+        // 后端直接返回分页数据，不是包装在 data 字段中
+        return {
+          content: response.content || [],
+          totalPages: response.totalPages || 0,
+          totalElements: response.totalElements || 0,
+          currentPage: response.currentPage || 0,
+          pageSize: response.pageSize || 10
+        }
       } else {
         throw new Error(response.message || '获取分析结果失败')
       }
@@ -283,10 +302,10 @@ class AnalysisService {
    */
   async getAnalysisById(id: number): Promise<AnalysisResult> {
     try {
-      const response: ApiResponse<AnalysisResult> = await api.get(`/analysis/${id}`)
+      const response: any = await api.get(`/api/analysis/${id}`)
 
-      if (response.success && response.data) {
-        return response.data
+      if (response.success && response.analysis) {
+        return response.analysis as AnalysisResult
       } else {
         throw new Error(response.message || '获取分析结果失败')
       }
@@ -333,7 +352,7 @@ class AnalysisService {
    */
   async rerunAnalysis(id: number): Promise<AnalysisResult> {
     try {
-      const response: ApiResponse<AnalysisResult> = await api.post(`/analysis/${id}/rerun`)
+      const response: ApiResponse<AnalysisResult> = await api.post(`/api/analysis/${id}/rerun`)
 
       if (response.success && response.data) {
         return response.data
@@ -351,7 +370,7 @@ class AnalysisService {
    */
   async exportAnalysis(id: number, format: 'JSON' | 'CSV' | 'EXCEL' | 'PDF' = 'JSON'): Promise<Blob> {
     try {
-      const response = await api.get(`/analysis/${id}/export`, {
+      const response = await api.get(`/api/analysis/${id}/export`, {
         params: { format },
         responseType: 'blob'
       })
@@ -368,7 +387,7 @@ class AnalysisService {
    */
   async getProjectAnalyses(projectId: number): Promise<AnalysisResult[]> {
     try {
-      const response: ApiResponse<AnalysisResult[]> = await api.get(`/projects/${projectId}/analysis`)
+      const response: ApiResponse<AnalysisResult[]> = await api.get(`/api/analysis/project/${projectId}`)
 
       if (response.success && response.data) {
         return response.data
@@ -486,11 +505,10 @@ class AnalysisService {
    */
   async getAnalysisProgress(id: number): Promise<{ progress: number; status: AnalysisStatus; message?: string }> {
     try {
-      const response: ApiResponse<{ progress: number; status: AnalysisStatus; message?: string }> = 
-        await api.get(`/analysis/${id}/progress`)
+      const response: any = await api.get(`/api/analysis/${id}/progress`)
 
       if (response.success && response.data) {
-        return response.data
+        return response.data as { progress: number; status: AnalysisStatus; message?: string }
       } else {
         throw new Error(response.message || '获取分析进度失败')
       }
@@ -505,7 +523,7 @@ class AnalysisService {
    */
   async batchCreateAnalysis(requests: AnalysisRequest[]): Promise<AnalysisResult[]> {
     try {
-      const response: ApiResponse<AnalysisResult[]> = await api.post('/analysis/batch', { requests })
+      const response: ApiResponse<AnalysisResult[]> = await api.post('/api/analysis/batch', { requests })
 
       if (response.success && response.data) {
         return response.data

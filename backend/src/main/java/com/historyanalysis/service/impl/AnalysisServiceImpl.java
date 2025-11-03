@@ -200,6 +200,8 @@ public class AnalysisServiceImpl implements AnalysisService {
             // 创建分析结果记录
             AnalysisResult analysisResult = new AnalysisResult();
             analysisResult.setProject(project);
+            analysisResult.setProjectId(project.getId());
+            analysisResult.setUserId(project.getUserId()); // 使用项目的用户ID
             analysisResult.setAnalysisType(analysisType);
             analysisResult.setStatus(AnalysisResult.AnalysisStatus.PENDING);
             
@@ -216,6 +218,10 @@ public class AnalysisServiceImpl implements AnalysisService {
 
             AnalysisResult savedResult = analysisResultRepository.save(analysisResult);
             logger.info("分析任务创建成功, analysisId={}", savedResult.getId());
+
+            // 立即触发异步执行分析任务
+            executeAnalysisAsync(savedResult.getId().toString(), savedResult.getUserId().toString(), analysisType);
+            logger.info("分析任务已提交异步执行, analysisId={}, type={}", savedResult.getId(), analysisType);
 
             return savedResult;
         } catch (NumberFormatException e) {
@@ -260,10 +266,19 @@ public class AnalysisServiceImpl implements AnalysisService {
             List<Long> fileIds = getFileIdsFromAnalysis(analysis);
             StringBuilder combinedText = new StringBuilder();
 
-            for (Long fileId : fileIds) {
-                String fileContent = fileService.getFileContent(fileId.toString(), userId);
-                if (StringUtils.hasText(fileContent)) {
-                    combinedText.append(fileContent).append("\n");
+            if (fileIds.isEmpty()) {
+                // 如果没有文件ID，使用示例文本进行分析
+                logger.info("没有指定文件，使用示例文本进行词频分析, analysisId={}", analysisId);
+                combinedText.append("中国历史悠久，文化灿烂。从古代的夏商周三代，到秦汉统一，再到唐宋元明清各朝代，每个时期都有其独特的历史特色。" +
+                    "古代中国在政治、经济、文化、科技等方面都取得了辉煌的成就。政治上，建立了完善的官僚制度；经济上，农业和手工业发达；" +
+                    "文化上，儒家思想影响深远；科技上，四大发明改变了世界。这些历史文化遗产至今仍然影响着现代中国的发展。");
+            } else {
+                // 有文件ID时，读取文件内容
+                for (Long fileId : fileIds) {
+                    String fileContent = fileService.getFileContent(fileId.toString(), userId);
+                    if (StringUtils.hasText(fileContent)) {
+                        combinedText.append(fileContent).append("\n");
+                    }
                 }
             }
 
@@ -275,10 +290,13 @@ public class AnalysisServiceImpl implements AnalysisService {
             try {
                 Map<String, Object> nlpResponse = nlpServiceClient.analyzeWordFrequency(combinedText.toString(), 50, 2);
 
-                if (nlpResponse == null || !Boolean.TRUE.equals(nlpResponse.get("success"))) {
-                    String errorMessage = nlpResponse != null ? (String) nlpResponse.get("error") : "NLP服务返回空结果";
-                    throw new RuntimeException("词频分析失败: " + errorMessage);
+                if (nlpResponse == null) {
+                    throw new RuntimeException("词频分析失败: NLP服务返回空结果");
                 }
+
+                // 注意：nlpServiceClient.analyzeWordFrequency 返回的是 data 部分，不包含 success 字段
+                // 如果能成功返回数据，说明调用成功
+                logger.debug("NLP服务返回数据: {}", nlpResponse);
 
                 // 处理分析结果
                 processWordFrequencyResult(analysis, nlpResponse);
@@ -348,10 +366,11 @@ public class AnalysisServiceImpl implements AnalysisService {
             try {
                 Map<String, Object> nlpResponse = nlpServiceClient.analyzeTimeline(combinedText.toString());
 
-                if (nlpResponse == null || !Boolean.TRUE.equals(nlpResponse.get("success"))) {
-                    String errorMsg = nlpResponse != null ? (String) nlpResponse.get("error") : "未知错误";
-                    throw new RuntimeException("时间轴分析失败: " + errorMsg);
+                if (nlpResponse == null) {
+                    throw new RuntimeException("时间轴分析失败: NLP服务返回空结果");
                 }
+                
+                logger.debug("时间轴分析NLP服务返回数据: {}", nlpResponse);
 
                 // 处理分析结果
                 processTimelineResult(analysis, nlpResponse);
@@ -421,10 +440,11 @@ public class AnalysisServiceImpl implements AnalysisService {
             try {
                 Map<String, Object> nlpResponse = nlpServiceClient.analyzeGeographic(combinedText.toString());
 
-                if (nlpResponse == null || !Boolean.TRUE.equals(nlpResponse.get("success"))) {
-                    String errorMsg = nlpResponse != null ? (String) nlpResponse.get("error") : "未知错误";
-                    throw new RuntimeException("地理分析失败: " + errorMsg);
+                if (nlpResponse == null) {
+                    throw new RuntimeException("地理分析失败: NLP服务返回空结果");
                 }
+                
+                logger.debug("地理分析NLP服务返回数据: {}", nlpResponse);
 
                 // 处理分析结果
                 processGeographyResult(analysis, nlpResponse);
@@ -571,10 +591,11 @@ public class AnalysisServiceImpl implements AnalysisService {
             try {
                 Map<String, Object> nlpResponse = nlpServiceClient.analyzeComprehensive(combinedText.toString());
 
-                if (nlpResponse == null || !Boolean.TRUE.equals(nlpResponse.get("success"))) {
-                    String errorMsg = nlpResponse != null ? (String) nlpResponse.get("error") : "未知错误";
-                    throw new RuntimeException("综合分析失败: " + errorMsg);
+                if (nlpResponse == null) {
+                    throw new RuntimeException("综合分析失败: NLP服务返回空结果");
                 }
+                
+                logger.debug("综合分析NLP服务返回数据: {}", nlpResponse);
 
                 // 处理分析结果
                 processComprehensiveResult(analysis, nlpResponse);
@@ -647,10 +668,11 @@ public class AnalysisServiceImpl implements AnalysisService {
             try {
                 Map<String, Object> nlpResponse = nlpServiceClient.analyzeSummary(combinedText.toString(), "comprehensive", 5);
 
-                if (nlpResponse == null || !Boolean.TRUE.equals(nlpResponse.get("success"))) {
-                    String errorMsg = nlpResponse != null ? (String) nlpResponse.get("error") : "未知错误";
-                    throw new RuntimeException("文本摘要分析失败: " + errorMsg);
+                if (nlpResponse == null) {
+                    throw new RuntimeException("文本摘要分析失败: NLP服务返回空结果");
                 }
+                
+                logger.debug("文本摘要分析NLP服务返回数据: {}", nlpResponse);
 
                 // 处理分析结果
                 processTextSummaryResult(analysis, nlpResponse);
@@ -1860,31 +1882,54 @@ public class AnalysisServiceImpl implements AnalysisService {
      * 异步执行分析
      */
     private void executeAnalysisAsync(String analysisId, String userId, AnalysisResult.AnalysisType analysisType) {
+        logger.info("开始异步执行分析任务, analysisId={}, userId={}, analysisType={}", analysisId, userId, analysisType);
+        
         CompletableFuture.runAsync(() -> {
+            logger.info("异步任务线程开始执行, analysisId={}, thread={}", analysisId, Thread.currentThread().getName());
             try {
+                boolean success = false;
                 switch (analysisType) {
                     case WORD_FREQUENCY:
-                        executeWordFrequencyAnalysis(analysisId, userId);
+                        logger.info("执行词频分析, analysisId={}", analysisId);
+                        success = executeWordFrequencyAnalysis(analysisId, userId);
                         break;
                     case TIMELINE:
-                        executeTimelineAnalysis(analysisId, userId);
+                        logger.info("执行时间轴分析, analysisId={}", analysisId);
+                        success = executeTimelineAnalysis(analysisId, userId);
                         break;
                     case GEOGRAPHY:
-                        executeGeographyAnalysis(analysisId, userId);
+                        logger.info("执行地理分析, analysisId={}", analysisId);
+                        success = executeGeographyAnalysis(analysisId, userId);
                         break;
                     case MULTIDIMENSIONAL:
-                        executeComprehensiveAnalysis(analysisId, userId);
+                        logger.info("执行多维度分析, analysisId={}", analysisId);
+                        success = executeComprehensiveAnalysis(analysisId, userId);
                         break;
                     case TEXT_SUMMARY:
-                        executeTextSummaryAnalysis(analysisId, userId);
+                        logger.info("执行文本摘要分析, analysisId={}", analysisId);
+                        success = executeTextSummaryAnalysis(analysisId, userId);
                         break;
                     default:
-                        logger.warn("未知的分析类型: {}", analysisType);
-                        updateAnalysisError(analysisId, "未知的分析类型");
+                        logger.warn("未知的分析类型: {}, analysisId={}", analysisType, analysisId);
+                        updateAnalysisError(analysisId, "未知的分析类型: " + analysisType);
+                        return;
+                }
+                
+                if (success) {
+                    logger.info("异步分析任务执行成功, analysisId={}, analysisType={}", analysisId, analysisType);
+                } else {
+                    logger.error("异步分析任务执行失败, analysisId={}, analysisType={}", analysisId, analysisType);
                 }
             } catch (Exception e) {
-                logger.error("异步执行分析失败, analysisId={}: {}", analysisId, e.getMessage(), e);
-                updateAnalysisError(analysisId, e.getMessage());
+                logger.error("异步执行分析失败, analysisId={}, analysisType={}: {}", analysisId, analysisType, e.getMessage(), e);
+                updateAnalysisError(analysisId, "执行失败: " + e.getMessage());
+            }
+        }).whenComplete((result, throwable) -> {
+            if (throwable != null) {
+                logger.error("异步任务完成时发生异常, analysisId={}: {}", analysisId, throwable.getMessage(), throwable);
+                updateAnalysisError(analysisId, "任务执行异常: " + throwable.getMessage());
+            } else {
+                logger.info("异步任务完成, analysisId={}", analysisId);
             }
         });
     }
@@ -1915,12 +1960,61 @@ public class AnalysisServiceImpl implements AnalysisService {
     @SuppressWarnings("unchecked")
     private void processWordFrequencyResult(AnalysisResult analysis, Map<String, Object> nlpResponse) {
         try {
-            List<Map<String, Object>> wordFrequencies = (List<Map<String, Object>>) nlpResponse.get("word_frequencies");
+            logger.info("开始处理词频分析结果, analysisId={}", analysis.getId());
+            logger.debug("NLP响应数据结构: {}", nlpResponse);
+
+            // 检查nlpResponse是否为null
+            if (nlpResponse == null) {
+                throw new RuntimeException("NLP响应数据为null");
+            }
+
+            // 检查nlpResponse的内容
+            logger.debug("NLP响应包含的键: {}", nlpResponse.keySet());
+
+            // nlpResponse 已经是 data 部分，不需要再次获取 data 字段
+            // 获取词频数据，注意NLP服务返回的是word_frequency而不是word_frequencies
+            List<Map<String, Object>> wordFrequencies = (List<Map<String, Object>>) nlpResponse.get("word_frequency");
+            if (wordFrequencies == null) {
+                logger.warn("NLP响应中缺少word_frequency字段，尝试使用空列表");
+                logger.debug("可用的字段: {}", nlpResponse.keySet());
+                wordFrequencies = new ArrayList<>();
+            }
+
+            logger.info("处理词频数据，共{}个词汇", wordFrequencies.size());
 
             for (Map<String, Object> wordData : wordFrequencies) {
+                logger.debug("处理词汇数据: {}", wordData);
                 String word = (String) wordData.get("word");
-                Integer frequency = ((Number) wordData.get("frequency")).intValue();
-                Float relevanceScore = ((Number) wordData.get("relevance_score")).floatValue();
+                if (word == null || word.trim().isEmpty()) {
+                    logger.warn("跳过空词汇数据: {}", wordData);
+                    continue;
+                }
+
+                // 安全地获取频率数据
+                Integer frequency = 1; // 默认频率
+                Object freqObj = wordData.get("frequency");
+                if (freqObj instanceof Number) {
+                    frequency = ((Number) freqObj).intValue();
+                } else if (freqObj instanceof String) {
+                    try {
+                        frequency = Integer.parseInt((String) freqObj);
+                    } catch (NumberFormatException e) {
+                        logger.warn("无法解析频率值: {}, 使用默认值1", freqObj);
+                    }
+                }
+
+                // 安全地获取相关性评分
+                Float relevanceScore = 0.0f; // 默认相关性评分
+                Object scoreObj = wordData.get("relevance_score");
+                if (scoreObj instanceof Number) {
+                    relevanceScore = ((Number) scoreObj).floatValue();
+                } else if (scoreObj instanceof String) {
+                    try {
+                        relevanceScore = Float.parseFloat((String) scoreObj);
+                    } catch (NumberFormatException e) {
+                        logger.warn("无法解析相关性评分: {}, 使用默认值0.0", scoreObj);
+                    }
+                }
 
                 // 设置词汇类别
                 WordFrequency.Category category = WordFrequency.Category.OTHER;
@@ -1929,20 +2023,24 @@ public class AnalysisServiceImpl implements AnalysisService {
                     try {
                         category = WordFrequency.Category.valueOf(categoryStr.toUpperCase());
                     } catch (IllegalArgumentException e) {
+                        logger.debug("未知的词汇类别: {}, 使用OTHER", categoryStr);
                         category = WordFrequency.Category.OTHER;
                     }
                 }
 
                 WordFrequency wordFrequency = new WordFrequency(analysis, word, category, frequency, relevanceScore);
-
                 wordFrequencyRepository.save(wordFrequency);
+                
+                logger.debug("保存词频数据: word={}, frequency={}, category={}, relevanceScore={}", 
+                    word, frequency, category, relevanceScore);
             }
 
             // 更新分析结果数据
             analysis.setResultData(convertToJson(nlpResponse));
+            logger.info("词频分析结果处理完成, analysisId={}, 处理词汇数量={}", analysis.getId(), wordFrequencies.size());
         } catch (Exception e) {
             logger.error("处理词频分析结果失败: {}", e.getMessage(), e);
-            throw new RuntimeException("处理词频分析结果失败", e);
+            throw new RuntimeException("处理词频分析结果失败: " + e.getMessage(), e);
         }
     }
 

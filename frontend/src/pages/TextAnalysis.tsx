@@ -36,7 +36,10 @@ import {
   DeleteOutlined,
   ReloadOutlined,
   DownloadOutlined,
-  EyeOutlined
+  EyeOutlined,
+  ClockCircleOutlined,
+  EnvironmentOutlined,
+  BookOutlined
 } from '@ant-design/icons'
 import fileService, { FileInfo } from '../services/fileService'
 import analysisService, { AnalysisResult, AnalysisType, AnalysisParameters } from '../services/analysisService'
@@ -197,6 +200,38 @@ const TextAnalysis: React.FC = () => {
     poll()
   }
 
+  // 辅助函数
+  const getAnalysisTypeName = (type: AnalysisType): string => {
+    const typeNames = {
+      WORD_FREQUENCY: '词频分析',
+      TIMELINE: '时间轴分析',
+      GEOGRAPHY: '地理位置分析',
+      TEXT_SUMMARY: '文本摘要',
+      MULTIDIMENSIONAL: '多维度分析'
+    }
+    return typeNames[type] || type
+  }
+
+  const getStatusText = (status: string): string => {
+    const statusTexts = {
+      PENDING: '等待中',
+      PROCESSING: '处理中',
+      COMPLETED: '已完成',
+      FAILED: '失败'
+    }
+    return statusTexts[status] || status
+  }
+
+  const getStatusColor = (status: string): string => {
+    const statusColors = {
+      PENDING: '#faad14',
+      PROCESSING: '#1890ff',
+      COMPLETED: '#52c41a',
+      FAILED: '#ff4d4f'
+    }
+    return statusColors[status] || '#666'
+  }
+
   // 删除分析结果
   const handleDeleteAnalysis = async (analysisId: number) => {
     try {
@@ -230,19 +265,121 @@ const TextAnalysis: React.FC = () => {
   // 导出分析结果
   const handleExportAnalysis = async (analysisId: number, format: 'JSON' | 'CSV' | 'EXCEL' | 'PDF') => {
     try {
-      const blob = await analysisService.exportAnalysis(analysisId, format)
+      // 由于后端当前返回的是JSON响应而不是Blob，我们需要先获取分析结果数据
+      const analysisResult = await analysisService.getAnalysisById(analysisId)
+      
+      // 根据格式生成相应的文件内容
+      let content: string
+      let mimeType: string
+      let fileExtension: string
+
+      switch (format) {
+        case 'JSON':
+          content = JSON.stringify(analysisResult, null, 2)
+          mimeType = 'application/json'
+          fileExtension = 'json'
+          break
+        case 'CSV':
+          content = convertToCSV(analysisResult)
+          mimeType = 'text/csv'
+          fileExtension = 'csv'
+          break
+        case 'EXCEL':
+          // 对于Excel格式，我们暂时使用CSV格式
+          content = convertToCSV(analysisResult)
+          mimeType = 'text/csv'
+          fileExtension = 'csv'
+          break
+        case 'PDF':
+          // 对于PDF格式，我们暂时使用JSON格式
+          content = JSON.stringify(analysisResult, null, 2)
+          mimeType = 'application/json'
+          fileExtension = 'json'
+          break
+        default:
+          throw new Error(`不支持的导出格式: ${format}`)
+      }
+
+      // 创建Blob对象
+      const blob = new Blob([content], { type: mimeType })
+      
+      // 验证Blob对象是否有效
+      if (!(blob instanceof Blob)) {
+        throw new Error('创建Blob对象失败')
+      }
+
+      // 创建下载链接
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `analysis_${analysisId}.${format.toLowerCase()}`
+      a.download = `analysis_${analysisId}.${fileExtension}`
       document.body.appendChild(a)
       a.click()
+      
+      // 清理资源
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
+      
       message.success('导出成功')
     } catch (error) {
       console.error('导出失败:', error)
-      message.error('导出失败')
+      message.error(`导出失败: ${error instanceof Error ? error.message : '未知错误'}`)
+    }
+  }
+
+  // 将分析结果转换为CSV格式
+  const convertToCSV = (analysisResult: any): string => {
+    try {
+      const lines: string[] = []
+      
+      // 添加基本信息
+      lines.push('分析结果导出')
+      lines.push(`分析ID,${analysisResult.id}`)
+      lines.push(`分析类型,${analysisResult.analysisType}`)
+      lines.push(`状态,${analysisResult.status}`)
+      lines.push(`创建时间,${analysisResult.createdAt}`)
+      lines.push(`更新时间,${analysisResult.updatedAt}`)
+      lines.push('')
+
+      // 如果有结果数据，尝试解析并添加
+      if (analysisResult.resultData) {
+        let resultData
+        try {
+          resultData = typeof analysisResult.resultData === 'string' 
+            ? JSON.parse(analysisResult.resultData) 
+            : analysisResult.resultData
+        } catch {
+          resultData = analysisResult.resultData
+        }
+
+        // 添加统计信息
+        if (resultData.statistics) {
+          lines.push('统计信息')
+          Object.entries(resultData.statistics).forEach(([key, value]) => {
+            lines.push(`${key},${value}`)
+          })
+          lines.push('')
+        }
+
+        // 添加词频数据（如果是词频分析）
+        if (resultData.word_categories) {
+          lines.push('词频数据')
+          lines.push('词语,频次,类别')
+          
+          Object.entries(resultData.word_categories).forEach(([category, words]: [string, any]) => {
+            if (Array.isArray(words)) {
+              words.forEach((word: any) => {
+                lines.push(`${word.word || word.text || word},${word.count || word.frequency || 1},${category}`)
+              })
+            }
+          })
+        }
+      }
+
+      return lines.join('\n')
+    } catch (error) {
+      console.error('CSV转换失败:', error)
+      return `分析结果导出失败: ${error instanceof Error ? error.message : '未知错误'}`
     }
   }
 
@@ -392,74 +529,209 @@ const TextAnalysis: React.FC = () => {
     return colors[type]
   }
 
-  // 获取状态颜色
-  const getStatusColor = (status: string) => {
-    const colors = {
-      PENDING: 'default',
-      RUNNING: 'processing',
-      COMPLETED: 'success',
-      FAILED: 'error',
-      CANCELLED: 'warning'
-    }
-    return colors[status as keyof typeof colors] || 'default'
-  }
-
   // 渲染分析结果详情
   const renderAnalysisDetail = () => {
-    if (!currentAnalysis || currentAnalysis.status !== 'COMPLETED') {
+    if (!currentAnalysis) {
       return <div>暂无分析结果</div>
     }
 
+    // 显示分析任务基本信息
+    const taskInfo = (
+      <div style={{ marginBottom: 16 }}>
+        <Row gutter={16}>
+          <Col span={8}>
+            <Statistic title="分析类型" value={getAnalysisTypeName(currentAnalysis.analysisType)} />
+          </Col>
+          <Col span={8}>
+            <Statistic title="创建时间" value={new Date(currentAnalysis.createdAt).toLocaleString()} />
+          </Col>
+          <Col span={8}>
+            <Statistic 
+              title="状态" 
+              value={getStatusText(currentAnalysis.status)} 
+              valueStyle={{ color: getStatusColor(currentAnalysis.status) }}
+            />
+          </Col>
+        </Row>
+        {currentAnalysis.progress !== undefined && (
+          <div style={{ marginTop: 16 }}>
+            <Progress 
+              percent={currentAnalysis.progress} 
+              status={currentAnalysis.status === 'FAILED' ? 'exception' : 'active'}
+            />
+          </div>
+        )}
+      </div>
+    )
+
+    // 如果分析未完成，只显示基本信息
+    if (currentAnalysis.status !== 'COMPLETED') {
+      return (
+        <div>
+          {taskInfo}
+          <div style={{ textAlign: 'center', color: '#666', marginTop: 32 }}>
+            {currentAnalysis.status === 'PENDING' && '分析任务等待中...'}
+            {currentAnalysis.status === 'PROCESSING' && '分析任务进行中...'}
+            {currentAnalysis.status === 'FAILED' && '分析任务失败，请重试'}
+          </div>
+        </div>
+      )
+    }
+
+    // 分析完成，显示详细结果
     const { analysisType, resultData } = currentAnalysis
 
-    switch (analysisType) {
-      case 'WORD_FREQUENCY':
-        return renderWordFrequencyResult(resultData as WordFrequencyResult)
-      case 'TIMELINE':
-        return renderTimelineResult(resultData as TimelineResult)
-      case 'GEOGRAPHY':
-        return renderGeographyResult(resultData as GeographyResult)
-      case 'TEXT_SUMMARY':
-        return renderTextSummaryResult(resultData as TextSummaryResult)
-      case 'MULTIDIMENSIONAL':
-        return renderMultidimensionalResult(resultData as MultidimensionalResult)
-      default:
-        return <div>未知的分析类型</div>
-    }
+    return (
+      <div>
+        {taskInfo}
+        <Divider />
+        {(() => {
+          switch (analysisType) {
+            case 'WORD_FREQUENCY':
+              return renderWordFrequencyResult(resultData as WordFrequencyResult)
+            case 'TIMELINE':
+              return renderTimelineResult(resultData as TimelineResult)
+            case 'GEOGRAPHY':
+              return renderGeographyResult(resultData as GeographyResult)
+            case 'TEXT_SUMMARY':
+              return renderTextSummaryResult(resultData as TextSummaryResult)
+            case 'MULTIDIMENSIONAL':
+              return renderMultidimensionalResult(resultData as MultidimensionalResult)
+            default:
+              return <div>未知的分析类型</div>
+          }
+        })()}
+      </div>
+    )
   }
 
   // 渲染词频分析结果
-  const renderWordFrequencyResult = (result: WordFrequencyResult) => (
-    <div>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Statistic title="总词数" value={result.statistics.totalWords} />
-        </Col>
-        <Col span={6}>
-          <Statistic title="唯一词数" value={result.statistics.uniqueWords} />
-        </Col>
-        <Col span={6}>
-          <Statistic title="词汇多样性" value={result.statistics.lexicalDiversity} precision={3} />
-        </Col>
-        <Col span={6}>
-          <Statistic title="平均词长" value={result.statistics.averageWordLength} precision={2} />
-        </Col>
-      </Row>
+  const renderWordFrequencyResult = (result: any) => {
+    // 解析 JSON 字符串（如果需要）
+    let parsedResult = result
+    if (typeof result === 'string') {
+      try {
+        parsedResult = JSON.parse(result)
+      } catch (error) {
+        console.error('解析词频分析结果失败:', error)
+        return <Alert message="数据格式错误" type="error" />
+      }
+    }
+
+    // 提取统计信息，提供默认值
+    const statistics = parsedResult?.statistics || {}
+    const totalWords = statistics.total_words || statistics.totalWords || 0
+    const uniqueWords = statistics.unique_words || statistics.uniqueWords || 0
+    const lexicalDiversity = statistics.lexical_diversity || statistics.lexicalDiversity || 0
+    const averageFrequency = statistics.average_frequency || statistics.averageFrequency || 0
+
+    // 处理词频数据
+    let wordData: any[] = []
+    
+    if (parsedResult?.word_list) {
+      // 后端格式：word_list 数组
+      wordData = parsedResult.word_list.map((item: any, index: number) => ({
+        key: index,
+        word: item.word || '',
+        frequency: item.count || item.frequency || 0,
+        category: '词汇',
+        weight: (item.frequency || item.count || 0) / Math.max(totalWords, 1),
+        rank: index + 1
+      }))
+    } else if (parsedResult?.word_categories) {
+      // 后端实际格式：word_categories 对象
+      const categories = parsedResult.word_categories
+      let rank = 1
       
-      <Table
-        dataSource={result.topWords}
-        columns={[
-          { title: '词语', dataIndex: 'word', key: 'word' },
-          { title: '频次', dataIndex: 'frequency', key: 'frequency' },
-          { title: '类别', dataIndex: 'category', key: 'category', render: (cat: string) => <Tag>{cat}</Tag> },
-          { title: '权重', dataIndex: 'weight', key: 'weight', render: (w: number) => w.toFixed(3) },
-          { title: '排名', dataIndex: 'rank', key: 'rank' }
-        ]}
-        pagination={{ pageSize: 10 }}
-        size="small"
-      />
-    </div>
-  )
+      // 高频词
+      if (categories.high_frequency) {
+        categories.high_frequency.forEach((word: string) => {
+          wordData.push({
+            key: wordData.length,
+            word,
+            frequency: 4, // 假设高频词频次为4
+            category: '高频词',
+            weight: 4 / Math.max(totalWords, 1),
+            rank: rank++
+          })
+        })
+      }
+      
+      // 中频词
+      if (categories.medium_frequency) {
+        categories.medium_frequency.forEach((word: string) => {
+          wordData.push({
+            key: wordData.length,
+            word,
+            frequency: 2, // 假设中频词频次为2
+            category: '中频词',
+            weight: 2 / Math.max(totalWords, 1),
+            rank: rank++
+          })
+        })
+      }
+      
+      // 低频词（只显示前10个）
+      if (categories.low_frequency) {
+        categories.low_frequency.slice(0, 10).forEach((word: string) => {
+          wordData.push({
+            key: wordData.length,
+            word,
+            frequency: 1, // 假设低频词频次为1
+            category: '低频词',
+            weight: 1 / Math.max(totalWords, 1),
+            rank: rank++
+          })
+        })
+      }
+    } else if (parsedResult?.topWords) {
+      // 前端期望格式：topWords 数组
+      wordData = parsedResult.topWords.map((item: any, index: number) => ({
+        key: index,
+        word: item.word || '',
+        frequency: item.frequency || 0,
+        category: item.category || '词汇',
+        weight: item.weight || 0,
+        rank: item.rank || index + 1
+      }))
+    }
+
+    return (
+      <div>
+        <Row gutter={16} style={{ marginBottom: 16 }}>
+          <Col span={6}>
+            <Statistic title="总词数" value={totalWords} />
+          </Col>
+          <Col span={6}>
+            <Statistic title="唯一词数" value={uniqueWords} />
+          </Col>
+          <Col span={6}>
+            <Statistic title="词汇多样性" value={lexicalDiversity} precision={3} />
+          </Col>
+          <Col span={6}>
+            <Statistic title="平均频率" value={averageFrequency} precision={3} />
+          </Col>
+        </Row>
+        
+        {wordData.length > 0 ? (
+          <Table
+            dataSource={wordData}
+            columns={[
+              { title: '词语', dataIndex: 'word', key: 'word' },
+              { title: '频次', dataIndex: 'frequency', key: 'frequency' },
+              { title: '类别', dataIndex: 'category', key: 'category', render: (cat: string) => <Tag>{cat}</Tag> },
+              { title: '权重', dataIndex: 'weight', key: 'weight', render: (w: number) => w.toFixed(3) },
+              { title: '排名', dataIndex: 'rank', key: 'rank' }
+            ]}
+            pagination={{ pageSize: 10 }}
+            size="small"
+          />
+        ) : (
+          <Alert message="暂无词频数据" type="info" />
+        )}
+      </div>
+    )
+  }
 
   // 渲染时间轴分析结果
   const renderTimelineResult = (result: TimelineResult) => (

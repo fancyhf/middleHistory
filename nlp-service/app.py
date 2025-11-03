@@ -158,6 +158,7 @@ def analyze_word_frequency():
         top_n = data.get('top_n', 50)  # 默认返回前50个高频词
         min_length = data.get('min_length', 2)  # 最小词长度
         
+
         if not text.strip():
             return jsonify({
                 'success': False,
@@ -168,9 +169,15 @@ def analyze_word_frequency():
         logger.info(f"开始词频分析, 文本长度: {len(text)}, top_n: {top_n}")
         
         # 执行词频分析
-        result = word_freq_analyzer.analyze(text, top_n, min_length)
+        result = word_freq_analyzer.analyze(
+            text=text, 
+            language='auto', 
+            min_length=min_length, 
+            max_results=top_n, 
+            remove_stopwords=True
+        )
         
-        logger.info(f"词频分析完成, 找到 {len(result.get('word_frequencies', []))} 个词")
+        logger.info(f"词频分析完成, 找到 {len(result.get('word_frequency', []))} 个词")
         
         return jsonify({
             'success': True,
